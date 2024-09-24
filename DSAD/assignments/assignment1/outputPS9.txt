@@ -1,0 +1,54 @@
+These are the total of 12 nodes in the tree with character count of each node as
+80186356719 -- 11 characters
+$we456try -- 9 characters
+Arrogance -- 9 characters
+AB -- 2 characters
+9type21#jr -- 10 characters
+ABc -- 3 characters
+Arrogance -- 9 characters
+!9n6lq0@p74jxaal -- 16 characters
+Imple1983^4#@ -- 13 characters
+arrogance -- 9 characters
+arrange -- 7 characters
+18902678mk362 -- 13 characters
+
+There are total of 4 nodes with same string count as 9
+$we456try -- 9 characters
+Arrogance -- 9 characters
+Arrogance -- 9 characters
+arrogance -- 9 characters and
+2 nodes with same string count as 13
+Imple1983^4#@ -- 13 characters
+18902678mk362 -- 13 characters
+List of input words based on the order of priority (highest to least)…
+$we456try
+!9n6lq0@p74jxaal
+9type21#jr
+80186356719
+18902678mk362
+Imple1983^4#@
+ABc
+AB
+Arrogance
+Arrogance
+arrogance
+arrange
+
+Largest string in all the nodes is with 16 as string count and it is at level 3 in the BST structure…
+
+Duplicate input string in all the nodes are 
+"Arrogance" repeated for 2 time which is at level 1 in the BST
+
+Preorder traversal of the BST is
+80186356719
+Arrogance
+Arrogance
+arrogance
+arrange
+AB
+ABc
+Imple1983^4#@
+18902678mk362
+$we456try
+9type21#jr
+!9n6lq0@p74jxaal
