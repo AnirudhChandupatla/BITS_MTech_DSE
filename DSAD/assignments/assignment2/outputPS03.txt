@@ -1,0 +1,5 @@
+Divide & Conquer:
+Chocolate:  Parle/Mars/Nestle/M&M/Amul/Campco Number:  89/99/123/156/231/278
+
+Iterative Solution:
+Chocolate:  Parle/Mars/Nestle/M&M/Amul/Campco Number:  89/99/123/156/231/278
