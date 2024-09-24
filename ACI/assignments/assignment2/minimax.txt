@@ -1,0 +1,381 @@
+from copy import deepcopy
+
+PLAYER_1 = 1
+PLAYER_2 = 2
+
+fillable_positions = None
+
+def minimax(grid, player, depth=0, player1_score=0, player2_score=0):
+    if depth == len(words_len):  # means all words are explored
+        return player, player1_score if player == PLAYER_1 else player2_score, grid
+
+    word_to_place, word_len = words_len[depth]
+    grid_copy = deepcopy(grid)
+
+    if player == PLAYER_1:
+        print('Player 1 turn')
+        for fillable_possition in pick_partially_filled_positions(grid, word_len, fillable_positions[word_len]):
+            can_word_be_place = check_if_word_can_be_place(word_to_place, grid_copy, fillable_possition)
+            if can_word_be_place:
+                write_word_to_grid(word_to_place, grid_copy, fillable_possition)
+                pprint(grid_copy)
+                fillable_possition['filled'] = True
+                p, result_score, result_grid = minimax(grid_copy, PLAYER_2, depth + 1, player1_score + word_len,
+                                                    player2_score)
+                break
+        else:
+
+            p, result_score, result_grid = minimax(grid_copy, PLAYER_2, depth + 1, player1_score - 1, player2_score)
+
+        return PLAYER_1, result_score, result_grid
+
+    else:
+        print('Player 2 turn')
+        for fillable_possition in pick_partially_filled_positions(grid, word_len, fillable_positions[word_len]):
+            can_word_be_place = check_if_word_can_be_place(word_to_place, grid_copy, fillable_possition)
+            if can_word_be_place:
+                write_word_to_grid(word_to_place, grid_copy, fillable_possition)
+                pprint(grid_copy)
+                fillable_possition['filled'] = True
+                p, result_score, result_grid = minimax(grid_copy, PLAYER_1, depth + 1, player1_score,
+                                                    player2_score + word_len)
+                break
+        else:
+
+            p, result_score, result_grid = minimax(grid_copy, PLAYER_1, depth + 1, player1_score, player2_score - 1)
+
+        return PLAYER_2, result_score, result_grid
+
+def get_empty_place_count_by(grid,position):
+    From = position['from']
+    To = position['to']
+    cnt = 0
+    if From[0] == To[0]: #horizontal
+        for i in range(From[1],To[1]+1):
+            if grid[From[0]][i] == '_': cnt+=1
+    else: #vertical
+        for i in range(From[0],To[0]+1):
+            if grid[i][From[1]] == '_': cnt+=1
+    return cnt
+
+def pick_partially_filled_positions(grid, word_len, some_fillable_positions):
+    partially_filled_places = []
+    #q = PriorityQueue()
+    for p in [fp for fp in fillable_positions[word_len] if not fp['filled']]:
+        partially_filled_places.append((get_empty_place_count_by(grid,p),p))
+    if len(partially_filled_places) == 0:return some_fillable_positions
+    pl,positions_to_return = zip(*sorted(partially_filled_places,key=lambda x:x[0]))
+    return positions_to_return
+
+def populate_position(fillable_cells, positions):
+    len_word = len(fillable_cells)
+    if len_word >= MIN_LEN:
+        postion = {'from': fillable_cells[0], 'to': fillable_cells[-1],'filled':False}
+        if len_word in positions.keys():
+            positions[len_word].append(postion)
+        else:
+            positions[len_word] = [postion]
+    return []
+
+
+def locate_fillable_possitions(grid):
+    # in the grid mark the fillable cell with '_'
+    n_rows = len(grid)
+    if n_rows > 0:
+        n_cols = len(grid[0])
+    else:
+        n_cols = 0
+    positions = {}
+    # trace horizontally
+    for i in range(n_rows):
+        fillable_cells = []
+        for j in range(n_cols + 1):
+            if j == n_cols:
+                fillable_cells = populate_position(fillable_cells, positions)
+            elif grid[i][j] == '_':
+                fillable_cells.append((i, j))
+            else:
+                fillable_cells = populate_position(fillable_cells, positions)
+    # trace vertically
+    for i in range(n_cols):
+        fillable_cells = []
+        for j in range(n_rows + 1):
+            try:
+                if j == n_rows:
+                    fillable_cells = populate_position(fillable_cells, positions)
+                elif grid[j][i] == '_':
+                    fillable_cells.append((j, i))
+                else:
+                    fillable_cells = populate_position(fillable_cells, positions)
+            except:
+                print(j, i)
+    return positions
+
+def check_if_word_can_be_place(word,grid,position):
+    From = position['from']
+    To = position['to']
+    j = 0
+    if From[0] == To[0]: #horizontal
+        for i in range(From[1],To[1]+1):
+            if grid[From[0]][i] == '_':
+                j += 1
+                continue
+            if grid[From[0]][i] != word[j]: return False
+            j += 1
+        return True
+    else: #vertical
+        for i in range(From[0],To[0]+1):
+            if grid[i][From[1]] == '_':
+                j += 1
+                continue
+            if grid[i][From[1]] != word[j]: return False
+            j += 1
+        return True
+
+
+def write_word_to_grid(word,grid,position):
+    From = position['from']
+    To = position['to']
+    j = 0
+    if From[0] == To[0]: #horizontal
+        for i in range(From[1],To[1]+1):
+            grid[From[0]][i] = word[j]
+            j+=1
+    else: #vertical
+        for i in range(From[0],To[0]+1):
+            grid[i][From[1]] = word[j]
+            j+=1
+
+
+#Code block - Start the game
+from pprint import pprint
+
+words = '''CELERYO
+CUCUMBER
+CABBAGE
+ONION
+CARROT
+CAPSICUM
+CAULIFLOWER
+RADDISH
+TOMATO
+BEETROOT
+POTATO
+BEANS'''.split('\n')
+
+words_len = sorted([(w,len(w)) for w in words],key = lambda x:x[1],reverse=True)
+
+MAX_LEN = words_len[0][1]
+MIN_LEN = words_len[-1][1]
+
+grid_str = '''#,#,#,#,#,_,_,_,_,_,_,_
+#,#,#,#,#,_,#,#,#,#,#,_
+_,_,_,_,_,_,_,_,#,#,#,_
+_,#,_,#,#,_,#,#,#,#,#,_
+_,#,_,#,_,_,_,_,_,_,#,_
+_,#,_,#,#,_,#,#,#,#,_,#
+_,#,_,#,_,_,_,_,_,_,_,_
+_,#,_,#,_,#,#,_,#,#,_,#
+_,#,_,#,_,#,#,_,#,#,_,#
+_,#,_,#,_,#,#,_,#,#,_,#
+_,#,#,#,_,#,#,_,#,#,_,#
+_,#,#,#,#,#,#,_,#,#,#,#
+_,_,_,_,_,_,_,#,#,#,#,#'''
+
+grid = [line.split(',') for line in grid_str.split('\n')]
+
+fillable_positions = locate_fillable_possitions(grid)
+
+winner, score, final_grid = minimax(grid,PLAYER_1)
+
+print('\nWinner is player:',winner,'\nwith score:',score,'\nand final state of grid is:')
+
+pprint(final_grid)
+
+
+final output: 
+Player 1 turn
+[['#', '#', '#', '#', '#', '_', '_', '_', '_', '_', '_', '_'],
+ ['#', '#', '#', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['C', '_', '_', '_', '_', '_', '_', '_', '#', '#', '#', '_'],
+ ['A', '#', '_', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', '_', '#', '_', '_', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', '_', '#', '#', '_', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', '_', '#', '_', '_', '_', '_', '_', '_', '_', '_'],
+ ['F', '#', '_', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', '_', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', '_', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', '_', '_', '_', '_', '_', '_', '#', '#', '#', '#', '#']]
+Player 2 turn
+[['#', '#', '#', '#', '#', '_', '_', '_', '_', '_', '_', '_'],
+ ['#', '#', '#', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', '_', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', '_', '#', '_', '_', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', '_', '#', '#', '_', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', '_', '#', '_', '_', '_', '_', '_', '_', '_', '_'],
+ ['F', '#', '_', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', '_', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', '_', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', '_', '_', '_', '_', '_', '_', '#', '#', '#', '#', '#']]
+Player 1 turn
+[['#', '#', '#', '#', '#', '_', '_', '_', '_', '_', '_', '_'],
+ ['#', '#', '#', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', '_', '_', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', 'S', '#', '#', '_', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', '_', '_', '_', '_', '_', '_', '_', '_'],
+ ['F', '#', 'C', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', '_', '_', '_', '_', '_', '_', '#', '#', '#', '#', '#']]
+Player 2 turn
+[['#', '#', '#', '#', '#', '_', '_', '_', '_', '_', '_', '_'],
+ ['#', '#', '#', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', '_', '_', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', 'S', '#', '#', '_', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', '_', '_', '_', '_', '_', '_', '#', '#', '#', '#', '#']]
+Player 1 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', '_', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', '_', '_', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', 'S', '#', '#', '_', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', '_', '_', '_', '_', '_', '_', '#', '#', '#', '#', '#']]
+Player 2 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', '_', 'A', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', '_', '_', '_', '_', '_', '_', '#', '#', '#', '#', '#']]
+Player 1 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', '_', 'A', '_', '_', '_', '_', '#', '_'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
+Player 2 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', 'C', 'A', 'R', 'R', 'O', 'T', '#', '_'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', '_', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', '_', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
+Player 1 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', 'C', 'A', 'R', 'R', 'O', 'T', '#', '_'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', '_', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', 'O', '#', '#', '_', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', 'M', '#', '#', '_', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', 'A', '#', '#', '_', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', 'T', '#', '#', '_', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', 'O', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
+Player 2 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', '_'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', '_'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', '_'],
+ ['U', '#', 'P', '#', 'C', 'A', 'R', 'R', 'O', 'T', '#', '_'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', 'P', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', 'O', '#', '#', 'T', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', 'M', '#', '#', 'A', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', 'A', '#', '#', 'T', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', 'T', '#', '#', 'O', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', 'O', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
+Player 1 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', 'N'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', 'I'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', 'O'],
+ ['U', '#', 'P', '#', 'C', 'A', 'R', 'R', 'O', 'T', '#', 'N'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', 'P', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', '_', '#', '#', 'O', '#', '#', 'T', '#'],
+ ['L', '#', 'U', '#', '_', '#', '#', 'M', '#', '#', 'A', '#'],
+ ['O', '#', 'M', '#', '_', '#', '#', 'A', '#', '#', 'T', '#'],
+ ['W', '#', '#', '#', '_', '#', '#', 'T', '#', '#', 'O', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', 'O', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
+Player 2 turn
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', 'N'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', 'I'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', 'O'],
+ ['U', '#', 'P', '#', 'C', 'A', 'R', 'R', 'O', 'T', '#', 'N'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', 'P', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', 'E', '#', '#', 'O', '#', '#', 'T', '#'],
+ ['L', '#', 'U', '#', 'A', '#', '#', 'M', '#', '#', 'A', '#'],
+ ['O', '#', 'M', '#', 'N', '#', '#', 'A', '#', '#', 'T', '#'],
+ ['W', '#', '#', '#', 'S', '#', '#', 'T', '#', '#', 'O', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', 'O', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
+
+Winner is player: 1 
+with score: 44 
+and final state of grid is:
+[['#', '#', '#', '#', '#', 'C', 'E', 'L', 'E', 'R', 'Y', 'O'],
+ ['#', '#', '#', '#', '#', 'A', '#', '#', '#', '#', '#', 'N'],
+ ['C', 'U', 'C', 'U', 'M', 'B', 'E', 'R', '#', '#', '#', 'I'],
+ ['A', '#', 'A', '#', '#', 'B', '#', '#', '#', '#', '#', 'O'],
+ ['U', '#', 'P', '#', 'C', 'A', 'R', 'R', 'O', 'T', '#', 'N'],
+ ['L', '#', 'S', '#', '#', 'G', '#', '#', '#', '#', 'P', '#'],
+ ['I', '#', 'I', '#', 'B', 'E', 'E', 'T', 'R', 'O', 'O', 'T'],
+ ['F', '#', 'C', '#', 'E', '#', '#', 'O', '#', '#', 'T', '#'],
+ ['L', '#', 'U', '#', 'A', '#', '#', 'M', '#', '#', 'A', '#'],
+ ['O', '#', 'M', '#', 'N', '#', '#', 'A', '#', '#', 'T', '#'],
+ ['W', '#', '#', '#', 'S', '#', '#', 'T', '#', '#', 'O', '#'],
+ ['E', '#', '#', '#', '#', '#', '#', 'O', '#', '#', '#', '#'],
+ ['R', 'A', 'D', 'D', 'I', 'S', 'H', '#', '#', '#', '#', '#']]
