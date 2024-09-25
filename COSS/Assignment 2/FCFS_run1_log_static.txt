@@ -1,0 +1,44 @@
+"00:00:32(32.430) [OS0: 00000000]: P1(1)  loaded into the READY queue [Memory=1 pages, Priority=3]
+00:00:42(41.670) [OS0: 00000000]: P1(1)  removed from READY queue
+00:00:54(53.517) [OS0: 00000000]: P1(1)  loaded into the READY queue [Memory=1 pages, Priority=3]
+00:01:33(33.415) [OS0: 00000000]: 
+00:01:33(33.415) [OS0: 00000000]: NEW SCHEDULER SESSION STARTED
+00:01:33(33.415) [OS0: 00000000]: Scheduling scheme is First-Come-First-Served
+00:01:33(33.415) [OS0: 00000000]: Memory allocation policy is First Fit
+00:01:33(33.476) [OS0: 00000000]: P1(1)  moved from READY to RUNNING state on CPU 0
+00:01:37(36.520) [OS0: 00000063]: P2(2)  loaded into the READY queue [Memory=1 pages, Priority=2]
+00:01:38(37.558) [OS0: 00000084]: P3(3)  loaded into the READY queue [Memory=1 pages, Priority=4]
+00:01:38(38.150) [OS0: 00000087]: P1(1)  terminated normally
+00:01:38(38.150) [OS0: 00000087]: *** STATS FOR PROCESS P1(1) ***
+00:01:38(38.150) [OS0: 00000087]: Elapsed Time = 00:00:05(04.674)
+00:01:38(38.150) [OS0: 00000087]: Avg. Waiting Time = 0.06 sec
+00:01:38(38.150) [OS0: 00000087]: Avg. Burst Period = 87
+00:01:38(38.150) [OS0: 00000087]: Tick Count = 87
+00:01:38(38.150) [OS0: 00000087]: Memory Swap Count = 0
+00:01:38(38.333) [OS0: 00000088]: P2(2)  moved from READY to RUNNING state on CPU 0
+00:01:40(39.574) [OS0: 00000108]: P4(4)  loaded into the READY queue [Memory=1 pages, Priority=1]
+00:01:43(43.088) [OS0: 00000175]: P2(2)  terminated normally
+00:01:43(43.088) [OS0: 00000175]: *** STATS FOR PROCESS P2(2) ***
+00:01:43(43.088) [OS0: 00000175]: Elapsed Time = 00:00:05(04.755)
+00:01:43(43.088) [OS0: 00000175]: Avg. Waiting Time = 1.8 sec
+00:01:43(43.088) [OS0: 00000175]: Avg. Burst Period = 87
+00:01:43(43.088) [OS0: 00000175]: Tick Count = 87
+00:01:43(43.088) [OS0: 00000175]: Memory Swap Count = 0
+00:01:43(43.271) [OS0: 00000176]: P3(3)  moved from READY to RUNNING state on CPU 0
+00:01:48(47.953) [OS0: 00000263]: P3(3)  terminated normally
+00:01:48(47.953) [OS0: 00000263]: *** STATS FOR PROCESS P3(3) ***
+00:01:48(47.953) [OS0: 00000263]: Elapsed Time = 00:00:05(04.682)
+00:01:48(47.953) [OS0: 00000263]: Avg. Waiting Time = 5.71 sec
+00:01:48(47.953) [OS0: 00000263]: Avg. Burst Period = 87
+00:01:48(47.953) [OS0: 00000263]: Tick Count = 87
+00:01:48(47.953) [OS0: 00000263]: Memory Swap Count = 0
+00:01:48(48.131) [OS0: 00000264]: P4(4)  moved from READY to RUNNING state on CPU 0
+00:01:53(52.713) [OS0: 00000351]: P4(4)  terminated normally
+00:01:53(52.713) [OS0: 00000351]: *** STATS FOR PROCESS P4(4) ***
+00:01:53(52.713) [OS0: 00000351]: Elapsed Time = 00:00:05(04.582)
+00:01:53(52.713) [OS0: 00000351]: Avg. Waiting Time = 8.56 sec
+00:01:53(52.713) [OS0: 00000351]: Avg. Burst Period = 87
+00:01:53(52.713) [OS0: 00000351]: Tick Count = 87
+00:01:53(52.713) [OS0: 00000351]: Memory Swap Count = 0
+00:01:53(52.881) [OS0: 00000352]: Avg. Process Waiting Time = 4.03 sec
+"
